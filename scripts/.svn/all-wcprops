@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/ros/!svn/ver/11282/stacks/ros/tags/cturtle/core/rospy/scripts
+END
+genmsg_py.py
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/ros/!svn/ver/11282/stacks/ros/tags/cturtle/core/rospy/scripts/genmsg_py.py
+END
+gensrv_py.py
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/ros/!svn/ver/11282/stacks/ros/tags/cturtle/core/rospy/scripts/gensrv_py.py
+END
+genutil.py
+K 25
+svn:wc:ra_dav:version-url
+V 77
+/svn/ros/!svn/ver/11282/stacks/ros/tags/cturtle/core/rospy/scripts/genutil.py
+END
