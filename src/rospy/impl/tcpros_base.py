@@ -50,6 +50,7 @@ except ImportError:
     
 import threading
 import traceback
+import select
 
 from roslib.message import DeserializationError, Message
 from roslib.network import read_ros_handshake_header, write_ros_handshake_header
@@ -296,6 +297,7 @@ class TCPROSServer(object):
 			
             print("Calling read_ros_handshake_header")
             
+            #empty = BytesIO()
             #initialize read_ros_handshake_header with BytesIO for Python 3 (instead of bytesarray())	
             header = read_ros_handshake_header(sock, BytesIO(), buff_size)
             
