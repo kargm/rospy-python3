@@ -37,9 +37,10 @@
 
 try:
     from cStringIO import StringIO #Python 2.x
+    python3 = 0
 except ImportError:
     from io import StringIO, BytesIO #Python 3.x
-
+    python3 = 1
 import socket
 import logging
 
@@ -297,9 +298,13 @@ class TCPROSServer(object):
 			
             print("Calling read_ros_handshake_header")
             
-            #empty = BytesIO()
-            #initialize read_ros_handshake_header with BytesIO for Python 3 (instead of bytesarray())	
-            header = read_ros_handshake_header(sock, BytesIO(), buff_size)
+            if python3 == 0:
+                #initialize read_ros_handshake_header with BytesIO for Python 3 (instead of bytesarray())	
+                print(" !=!=!=!=!=!=!=!=!=!=!=! PYTHON 2 !=!=!=!=!=!=!=!=!=!=!=!")
+                header = read_ros_handshake_header(sock, StringIO(), buff_size)
+            else:
+                print(" !=!=!=!=!=!=!=!=!=!=!=! PYTHON 3 !=!=!=!=!=!=!=!=!=!=!=!")	
+                header = read_ros_handshake_header(sock, BytesIO(), buff_size)
             
             print("Calling read_ros_handshake_header SUCCESSFUL")
             if 'topic' in header:
