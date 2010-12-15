@@ -697,6 +697,8 @@ class Publisher(Topic):
         data = args_kwds_to_message(self.data_class, args, kwds)
         try:
             self.impl.acquire()
+            #print("(topics.py) -----------------------> data is: %s"%data)
+            #print("(topics.py) -----------------------> data is of type: %s"%type(data))
             self.impl.publish(data)
         except roslib.message.SerializationError as e:
             # can't go to rospy.logerr(), b/c this could potentially recurse
@@ -847,14 +849,14 @@ class _PublisherImpl(_TopicImpl):
                 raise ROSException("publish() to a closed topic")
             else:
                 return
-            
         if self.is_latch:
             self.latch = message
 
+        #print("Topic has connections: %s"%self.has_connections())
+        #print("(topics.py impl) --------------------> message is %s"%message)
         if not self.has_connections():
             #publish() falls through
             return False
-
         if connection_override is None:
             #copy connections so we can iterate safely
             conns = self.connections
@@ -864,6 +866,7 @@ class _PublisherImpl(_TopicImpl):
         # #2128 test our buffer. I don't now how this got closed in
         # that case, but we can at least diagnose the problem.
         b = self.buff
+        
         try:
             b.tell()
         except ValueError:
@@ -872,7 +875,6 @@ class _PublisherImpl(_TopicImpl):
         # serialize the message
         self.seq += 1 #count messages published to the topic
         serialize_message(b, self.seq, message)
-
         # send the buffer to all connections
         err_con = []
         data = b.getvalue()

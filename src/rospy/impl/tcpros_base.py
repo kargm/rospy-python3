@@ -306,7 +306,6 @@ class TCPROSServer(object):
                 print(" !=!=!=!=!=!=!=!=!=!=!=! PYTHON 3 !=!=!=!=!=!=!=!=!=!=!=!")	
                 header = read_ros_handshake_header(sock, BytesIO(), buff_size)
             
-            print("Calling read_ros_handshake_header SUCCESSFUL")
             if 'topic' in header:
                 err_msg = self.topic_connection_handler(sock, client_addr, header)
             elif 'service' in header:
@@ -561,7 +560,7 @@ class TCPROSTransport(Transport):
             raise TransportTerminated("connection closed")
         try:
             #TODO: get rid of sendalls and replace with async-style publishing
-            self.socket.sendall(data)
+            self.socket.sendall(data.encode())
             self.stat_bytes  += len(data)
             self.stat_num_msg += 1
         except IOError as xxx_todo_changeme:
@@ -590,9 +589,9 @@ class TCPROSTransport(Transport):
                 logdebug("[%s]: closing connection [%s] due to unknown socket error: %s", self.name, self.endpoint_id, msg) 
                 self.close()
                 raise TransportTerminated(str(errno)+' '+msg)                
-        except:
+        #except:
             #TODO: try to figure out common errors here
-            raise
+            #raise
         return True
     
     def receive_once(self):

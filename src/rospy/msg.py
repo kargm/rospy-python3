@@ -148,6 +148,7 @@ def serialize_message(b, seq, msg):
 
     #serialize the message data
     try:
+        #print("(msg.py) ===========> trying to serialize buffer b: %s"%b)
         msg.serialize(b)
     except struct.error as e:
         raise rospy.exceptions.ROSSerializationException(e)
@@ -157,7 +158,7 @@ def serialize_message(b, seq, msg):
     end = b.tell()
     size = end - 4 - start
     b.seek(start)
-    b.write(struct.pack('<I', size))
+    b.write(struct.pack('<I', size).decode())
     b.seek(end)
 
 def deserialize_messages(b, msg_queue, data_class, queue_size=None, max_msgs=None, start=0):
