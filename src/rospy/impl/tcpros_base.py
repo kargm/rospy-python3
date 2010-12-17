@@ -300,10 +300,10 @@ class TCPROSServer(object):
             
             if python3 == 0:
                 #initialize read_ros_handshake_header with BytesIO for Python 3 (instead of bytesarray())	
-                print(" !=!=!=!=!=!=!=!=!=!=!=! PYTHON 2 !=!=!=!=!=!=!=!=!=!=!=!")
+                print(" currently running python 2 version ")
                 header = read_ros_handshake_header(sock, StringIO(), buff_size)
             else:
-                print(" !=!=!=!=!=!=!=!=!=!=!=! PYTHON 3 !=!=!=!=!=!=!=!=!=!=!=!")	
+                print(" currently running python 3 version ")	
                 header = read_ros_handshake_header(sock, BytesIO(), buff_size)
             
             if 'topic' in header:
