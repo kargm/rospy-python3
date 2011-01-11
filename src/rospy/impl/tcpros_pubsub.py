@@ -190,7 +190,6 @@ class TCPROSHandler(rospy.impl.transport.ProtocolHandler):
         @return: code, message, debug
         @rtype: (int, str, int)
         """
-        
         #Validate protocol params = [TCPROS, address, port]
         if type(protocol_params) != list or len(protocol_params) != 3:
             return 0, "ERROR: invalid TCPROS parameters", 0
@@ -207,7 +206,8 @@ class TCPROSHandler(rospy.impl.transport.ProtocolHandler):
                                  tcp_nodelay=sub.tcp_nodelay)
             conn = TCPROSTransport(protocol, resolved_name)
             # timeout is really generous. for now just choosing one that is large but not infinite
-            conn.connect(dest_addr, dest_port, pub_uri, timeout=60.)
+            bool = conn.connect(dest_addr, dest_port, pub_uri, timeout=60.)
+            
             t = threading.Thread(name=resolved_name, target=conn.receive_loop, args=(sub.receive_callback,))
             # don't enable this just yet, need to work on this logic
             #rospy.core._add_shutdown_thread(t)

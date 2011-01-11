@@ -43,8 +43,11 @@ import logging
 try:
     import _thread
 except ImportError:
-    import thread as _thread
-
+    try:
+        import _thread as _thread
+    except ImportError:
+        import thread as _thread
+		
 import time
 import traceback
 
@@ -293,7 +296,7 @@ class TCPROSServiceClient(TCPROSTransportProtocol):
         # The current implementation allows user-supplied headers to
         # override protocol-specific headers.  We may want to
         # eliminate this in the future if it is abused too severely.
-        for k, v in self.headers.items():
+        for k, v in list(self.headers.items()):
             headers[k] = v
         return headers
     

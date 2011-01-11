@@ -68,10 +68,12 @@ import struct
 import io
 
 try:
-    import _thread
+    import _thread # Python 3
+    python3 = 1
 except ImportError:
-    import thread as _thread
-
+    import thread as _thread # Python 2
+    python3 = 0
+		
 import threading
 import logging
 import time
@@ -107,7 +109,7 @@ def isstring(s):
     for both Python 2 and 3
     """
     try:
-        return isinstance(s, basestring)
+        return isinstance(s, str)
     except NameError:
         return isinstance(s, str)
 
@@ -124,7 +126,6 @@ class Topic(object):
         @type  reg_type: str
         @raise ValueError: if parameters are invalid
         """
-        
         if not name or not isstring(name):
             raise ValueError("topic name is not a non-empty string")
         try:
@@ -195,7 +196,6 @@ class _TopicImpl(object):
         @param data_class: message data class 
         @type  data_class: L{Message}
         """
-
         # #1810 made resolved/unresolved more explicit so we don't accidentally double-resolve
         self.resolved_name = resolve_name(name) #NOTE: remapping occurs here!
         self.name = self.resolved_name # for backwards compatibility
@@ -256,6 +256,7 @@ class _TopicImpl(object):
             # the topic manager instead.
 
     def get_num_connections(self):
+        print("Impl -----------------------------> GetNumConnections")
         with self.c_lock:
             return len(self.connections)
     
@@ -415,15 +416,21 @@ class Subscriber(Topic):
             # it's important that we call add_callback so that the
             # callback can be invoked with any latched messages
             self.impl.add_callback(callback, callback_args)
+
             # save arguments for unregister
             self.callback = callback
             self.callback_args = callback_args
         else:
             # initialize fields
-            self.callback = self.callback_args = None            
+            self.callback = self.callback_args = None
         if tcp_nodelay:
             self.impl.set_tcp_nodelay(tcp_nodelay)        
 
+    #def dummy (msg, x, y):
+    #    print(("Read this: ", msg))
+    #    print(("x: ", x))
+    #    print(("y: ", y))
+		
     def unregister(self):
         """
         unpublish/unsubscribe from topic. Topic instance is no longer
@@ -579,6 +586,7 @@ class _SubscriberImpl(_TopicImpl):
         @param cb_args: callback args or None
         @type  cb_args: Any
         """
+        #print("-------------------> invoke callback")
         try:
             if cb_args is not None:
                 cb(msg, cb_args)
@@ -596,9 +604,12 @@ class _SubscriberImpl(_TopicImpl):
         @param msgs: message data
         @type msgs: [L{Message}]
         """
+        #print("---------------------> Received callback")
         # save reference to avoid lock
         callbacks = self.callbacks
         for msg in msgs:
+            if python3 == 1:
+                msg.data = msg.data.decode("utf-8")	# Python 3 			
             for cb, cb_args in callbacks:
                 self._invoke_callback(msg, cb, cb_args)
 
@@ -931,7 +942,7 @@ class _TopicManager(object):
         """
         with self.lock:
             info = []
-            for s in chain(iter(self.pubs.values()), iter(self.subs.values())):
+            for s in chain(iter(list(self.pubs.values())), iter(list(self.subs.values()))):
                 info.extend(s.get_stats_info())
             return info
             
@@ -943,8 +954,8 @@ class _TopicManager(object):
         @rtype: list
         """
         with self.lock:
-            return [s.get_stats() for s in self.pubs.values()],\
-                   [s.get_stats() for s in self.subs.values()]
+            return [s.get_stats() for s in list(self.pubs.values())],\
+                   [s.get_stats() for s in list(self.subs.values())]
             
     def close_all(self):
         """
@@ -953,7 +964,7 @@ class _TopicManager(object):
         """
         self.closed = True
         with self.lock:
-            for t in chain(iter(self.pubs.values()), iter(self.subs.values())):
+            for t in chain(iter(list(self.pubs.values())), iter(list(self.subs.values()))):
                 t.close()
             self.pubs.clear()
             self.subs.clear()        
@@ -980,8 +991,8 @@ class _TopicManager(object):
 
     def _recalculate_topics(self):
         """recalculate self.topics. expensive"""
-        self.topics = set([x.resolved_name for x in self.pubs.values()] +
-                          [x.resolved_name for x in self.subs.values()])
+        self.topics = set([x.resolved_name for x in list(self.pubs.values())] +
+                          [x.resolved_name for x in list(self.subs.values())])
     
     def _remove(self, ps, rmap, reg_type):
         """
@@ -1133,7 +1144,7 @@ class _TopicManager(object):
         return self.topics
     
     def _get_list(self, rmap):
-        return [[k, v.type] for k, v in rmap.items()]
+        return [[k, v.type] for k, v in list(rmap.items())]
 
     ## @return [[str,str],]: list of topics subscribed to by this node, [ [topic1, topicType1]...[topicN, topicTypeN]]
     def get_subscriptions(self):

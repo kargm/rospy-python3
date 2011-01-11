@@ -296,7 +296,7 @@ class TCPROSServer(object):
         try:
             buff_size = 4096 # size of read buffer
 			
-            print("Calling read_ros_handshake_header")
+            #print("Calling read_ros_handshake_header")
             
             if python3 == 0:
                 #initialize read_ros_handshake_header with BytesIO for Python 3 (instead of bytesarray())	
@@ -413,9 +413,15 @@ class TCPROSTransport(Transport):
 
         self.socket = None
         self.endpoint_id = 'unknown'
-        self.read_buff = StringIO()
-        self.write_buff = StringIO()
-            
+        
+        if python3 == 0: # Python 2.x
+            self.read_buff = StringIO()
+            self.write_buff = StringIO()
+        else: # Python 3.x
+            self.read_buff = BytesIO()
+            self.write_buff = BytesIO()
+            			    
+        #self.write_buff = StringIO()
         self.header = header
 
         # #1852 have to hold onto latched messages on subscriber side
@@ -529,6 +535,7 @@ class TCPROSTransport(Transport):
         @raise TransportInitError if header fails to validate
         """
         self.socket.setblocking(1)
+        
         self._validate_header(read_ros_handshake_header(self.socket, self.read_buff, self.protocol.buff_size))
                 
     def send_message(self, msg, seq):
